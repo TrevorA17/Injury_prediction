@@ -96,3 +96,27 @@ print(cov_age_weight)
 plot(InjuryData$Player_Age, InjuryData$Player_Weight, 
      xlab = "Player Age", ylab = "Player Weight", main = "Age vs Weight")
 
+# Perform ANOVA: Testing if Player_Age differs by Likelihood_of_Injury
+anova_age <- aov(Player_Age ~ Likelihood_of_Injury, data = InjuryData)
+
+# Print summary of ANOVA for Player_Age
+print("ANOVA for Player_Age by Likelihood_of_Injury:")
+summary(anova_age)
+
+# Perform ANOVA: Testing if Player_Weight differs by Likelihood_of_Injury
+anova_weight <- aov(Player_Weight ~ Likelihood_of_Injury, data = InjuryData)
+
+# Print summary of ANOVA for Player_Weight
+print("ANOVA for Player_Weight by Likelihood_of_Injury:")
+summary(anova_weight)
+
+# Optional: Visualizing the results using boxplots
+# Boxplot for Player_Age by Likelihood_of_Injury
+boxplot(Player_Age ~ Likelihood_of_Injury, data = InjuryData,
+        main = "Boxplot of Player_Age by Likelihood_of_Injury",
+        xlab = "Likelihood of Injury", ylab = "Player Age")
+
+# Boxplot for Player_Weight by Likelihood_of_Injury
+boxplot(Player_Weight ~ Likelihood_of_Injury, data = InjuryData,
+        main = "Boxplot of Player_Weight by Likelihood_of_Injury",
+        xlab = "Likelihood of Injury", ylab = "Player Weight")
