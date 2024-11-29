@@ -42,3 +42,12 @@ print(model_dt)
 # 5. Model Training with Random Forest (rf)
 model_rf <- train(Likelihood_of_Injury ~ ., data = train_data, method = "rf", trControl = train_control)
 print(model_rf)
+
+# 3. Model Performance Comparison using resamples
+models_list <- resamples(list(GLM = model_cv, DecisionTree = model_dt, RandomForest = model_rf))
+
+# Summarize the resamples for comparison
+summary(models_list)
+
+# Boxplot for visual comparison
+bwplot(models_list)
