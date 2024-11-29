@@ -95,3 +95,4 @@ print(cov_age_weight)
 # Scatterplot to visualize relationship
 plot(InjuryData$Player_Age, InjuryData$Player_Weight, 
      xlab = "Player Age", ylab = "Player Weight", main = "Age vs Weight")
+
