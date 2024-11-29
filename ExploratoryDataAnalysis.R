@@ -120,3 +120,73 @@ boxplot(Player_Age ~ Likelihood_of_Injury, data = InjuryData,
 boxplot(Player_Weight ~ Likelihood_of_Injury, data = InjuryData,
         main = "Boxplot of Player_Weight by Likelihood_of_Injury",
         xlab = "Likelihood of Injury", ylab = "Player Weight")
+
+# Univariate Plots
+# Histogram for Player_Age
+hist(InjuryData$Player_Age, 
+     main = "Histogram of Player_Age", 
+     xlab = "Player Age", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10)
+
+# Histogram for Player_Weight
+hist(InjuryData$Player_Weight, 
+     main = "Histogram of Player_Weight", 
+     xlab = "Player Weight", 
+     col = "lightgreen", 
+     border = "black", 
+     breaks = 10)
+
+# Boxplot for Player_Age
+boxplot(InjuryData$Player_Age, 
+        main = "Boxplot of Player_Age", 
+        ylab = "Player Age", 
+        col = "lightblue", 
+        border = "black")
+
+# Boxplot for Player_Weight
+boxplot(InjuryData$Player_Weight, 
+        main = "Boxplot of Player_Weight", 
+        ylab = "Player Weight", 
+        col = "lightgreen", 
+        border = "black")
+
+# Boxplot for Player_Age by Likelihood_of_Injury
+boxplot(Player_Age ~ Likelihood_of_Injury, 
+        data = InjuryData, 
+        main = "Boxplot of Player_Age by Likelihood_of_Injury", 
+        xlab = "Likelihood of Injury", 
+        ylab = "Player Age", 
+        col = c("lightblue", "lightgreen"))
+
+# Multivariate Plots
+# Scatterplot between Player_Age and Player_Weight
+plot(InjuryData$Player_Age, InjuryData$Player_Weight, 
+     main = "Scatterplot of Player_Age vs Player_Weight", 
+     xlab = "Player Age", 
+     ylab = "Player Weight", 
+     col = "blue", 
+     pch = 16)
+
+# Pairwise scatterplot matrix for numerical variables
+pairs(InjuryData[, c("Player_Age", "Player_Weight", "Training_Intensity", "Recovery_Time")],
+      main = "Pairs Plot of Numerical Variables")
+
+# Facet grid plot for numerical variables by Likelihood_of_Injury using 'ggplot2'
+library(ggplot2)
+
+# Scatter plot of Player_Age vs Player_Weight, faceted by Likelihood_of_Injury
+ggplot(InjuryData, aes(x = Player_Age, y = Player_Weight, color = Likelihood_of_Injury)) +
+  geom_point() +
+  facet_wrap(~Likelihood_of_Injury) +
+  labs(title = "Player_Age vs Player_Weight by Likelihood_of_Injury",
+       x = "Player Age", y = "Player Weight") +
+  theme_minimal()
+
+# Boxplot of Player_Age by Likelihood_of_Injury using 'ggplot2'
+ggplot(InjuryData, aes(x = Likelihood_of_Injury, y = Player_Age, fill = Likelihood_of_Injury)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Player_Age by Likelihood_of_Injury",
+       x = "Likelihood of Injury", y = "Player Age") +
+  theme_minimal()
