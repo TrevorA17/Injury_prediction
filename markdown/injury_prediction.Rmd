@@ -1,0 +1,387 @@
+---
+title: "Injury Prediction"
+author: "Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Injury Prediction |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/mrsimple07/injury-prediction-dataset\>*
+
+### Reference:
+
+*\<mrsimple07. (n.d.). Injury Prediction Dataset [Data set]. Kaggle. https://www.kaggle.com/datasets/mrsimple07/injury-prediction-dataset\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+
+## Loading the Dataset
+```{r Loading Dataset}
+# Load the dataset
+InjuryData <- read.csv("injury_data.csv", colClasses = c(
+  Player_Age = "numeric",
+  Player_Weight = "numeric",
+  Player_Height = "numeric",
+  Previous_Injuries = "factor",
+  Training_Intensity = "numeric",
+  Recovery_Time = "numeric",
+  Likelihood_of_Injury = "factor"  # Assuming this is the target variable (categorical)
+))
+```
+
+## Measures of Frequency
+```{r MOF}
+# Measures of Frequency
+# Frequency of categorical variable
+freq_table <- table(InjuryData$Likelihood_of_Injury)
+print("Frequency Table:")
+print(freq_table)
+
+# Proportions of categories
+prop_table <- prop.table(freq_table)
+print("Proportions Table:")
+print(prop_table)
+
+# Summary of numeric variables (count of non-missing values)
+print("Summary of Player_Age and Training_Intensity:")
+summary(InjuryData$Player_Age)
+summary(InjuryData$Training_Intensity)
+```
+
+## Measures of Central Tendency
+```{r MOCT}
+# Measures of Central Tendency
+# Mean
+mean_age <- mean(InjuryData$Player_Age, na.rm = TRUE)
+mean_weight <- mean(InjuryData$Player_Weight, na.rm = TRUE)
+print("Mean of Player_Age and Player_Weight:")
+print(mean_age)
+print(mean_weight)
+
+# Median
+median_age <- median(InjuryData$Player_Age, na.rm = TRUE)
+median_weight <- median(InjuryData$Player_Weight, na.rm = TRUE)
+print("Median of Player_Age and Player_Weight:")
+print(median_age)
+print(median_weight)
+
+# Mode (custom function, as R does not have a built-in mode function)
+get_mode <- function(x) {
+  uniq_x <- unique(x)
+  uniq_x[which.max(tabulate(match(x, uniq_x)))]
+}
+mode_injuries <- get_mode(InjuryData$Previous_Injuries)
+print("Mode of Previous_Injuries:")
+print(mode_injuries)
+```
+
+## Measures of Distribution
+```{r MOD}
+# Measures of Distribution
+# Range
+range_age <- range(InjuryData$Player_Age, na.rm = TRUE)
+range_weight <- range(InjuryData$Player_Weight, na.rm = TRUE)
+print("Range of Player_Age and Player_Weight:")
+print(range_age)
+print(range_weight)
+
+# Variance
+var_age <- var(InjuryData$Player_Age, na.rm = TRUE)
+var_weight <- var(InjuryData$Player_Weight, na.rm = TRUE)
+print("Variance of Player_Age and Player_Weight:")
+print(var_age)
+print(var_weight)
+
+# Standard Deviation
+sd_age <- sd(InjuryData$Player_Age, na.rm = TRUE)
+sd_weight <- sd(InjuryData$Player_Weight, na.rm = TRUE)
+print("Standard Deviation of Player_Age and Player_Weight:")
+print(sd_age)
+print(sd_weight)
+
+# Skewness and Kurtosis (requires 'e1071' package)
+library(e1071)
+
+skew_age <- skewness(InjuryData$Player_Age, na.rm = TRUE)
+kurt_age <- kurtosis(InjuryData$Player_Age, na.rm = TRUE)
+print("Skewness and Kurtosis of Player_Age:")
+print(skew_age)
+print(kurt_age)
+```
+
+## Measures of Relationship
+```{r MOR}
+# Measures of Relationship
+# Correlation between two numeric variables
+cor_age_weight <- cor(InjuryData$Player_Age, InjuryData$Player_Weight, use = "complete.obs")
+print("Correlation between Player_Age and Player_Weight:")
+print(cor_age_weight)
+
+# Covariance between two numeric variables
+cov_age_weight <- cov(InjuryData$Player_Age, InjuryData$Player_Weight, use = "complete.obs")
+print("Covariance between Player_Age and Player_Weight:")
+print(cov_age_weight)
+
+# Scatterplot to visualize relationship
+plot(InjuryData$Player_Age, InjuryData$Player_Weight, 
+     xlab = "Player Age", ylab = "Player Weight", main = "Age vs Weight")
+```
+
+## ANOVA
+```{r ANOVA}
+# Perform ANOVA: Testing if Player_Age differs by Likelihood_of_Injury
+anova_age <- aov(Player_Age ~ Likelihood_of_Injury, data = InjuryData)
+
+# Print summary of ANOVA for Player_Age
+print("ANOVA for Player_Age by Likelihood_of_Injury:")
+summary(anova_age)
+
+# Perform ANOVA: Testing if Player_Weight differs by Likelihood_of_Injury
+anova_weight <- aov(Player_Weight ~ Likelihood_of_Injury, data = InjuryData)
+
+# Print summary of ANOVA for Player_Weight
+print("ANOVA for Player_Weight by Likelihood_of_Injury:")
+summary(anova_weight)
+```
+
+## Plots
+```{r Plots}
+# Boxplot for Player_Age by Likelihood_of_Injury
+boxplot(Player_Age ~ Likelihood_of_Injury, data = InjuryData,
+        main = "Boxplot of Player_Age by Likelihood_of_Injury",
+        xlab = "Likelihood of Injury", ylab = "Player Age")
+
+# Boxplot for Player_Weight by Likelihood_of_Injury
+boxplot(Player_Weight ~ Likelihood_of_Injury, data = InjuryData,
+        main = "Boxplot of Player_Weight by Likelihood_of_Injury",
+        xlab = "Likelihood of Injury", ylab = "Player Weight")
+
+# Univariate Plots
+# Histogram for Player_Age
+hist(InjuryData$Player_Age, 
+     main = "Histogram of Player_Age", 
+     xlab = "Player Age", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10)
+
+# Histogram for Player_Weight
+hist(InjuryData$Player_Weight, 
+     main = "Histogram of Player_Weight", 
+     xlab = "Player Weight", 
+     col = "lightgreen", 
+     border = "black", 
+     breaks = 10)
+
+# Boxplot for Player_Age
+boxplot(InjuryData$Player_Age, 
+        main = "Boxplot of Player_Age", 
+        ylab = "Player Age", 
+        col = "lightblue", 
+        border = "black")
+
+# Boxplot for Player_Weight
+boxplot(InjuryData$Player_Weight, 
+        main = "Boxplot of Player_Weight", 
+        ylab = "Player Weight", 
+        col = "lightgreen", 
+        border = "black")
+
+# Boxplot for Player_Age by Likelihood_of_Injury
+boxplot(Player_Age ~ Likelihood_of_Injury, 
+        data = InjuryData, 
+        main = "Boxplot of Player_Age by Likelihood_of_Injury", 
+        xlab = "Likelihood of Injury", 
+        ylab = "Player Age", 
+        col = c("lightblue", "lightgreen"))
+
+# Multivariate Plots
+# Scatterplot between Player_Age and Player_Weight
+plot(InjuryData$Player_Age, InjuryData$Player_Weight, 
+     main = "Scatterplot of Player_Age vs Player_Weight", 
+     xlab = "Player Age", 
+     ylab = "Player Weight", 
+     col = "blue", 
+     pch = 16)
+
+# Pairwise scatterplot matrix for numerical variables
+pairs(InjuryData[, c("Player_Age", "Player_Weight", "Training_Intensity", "Recovery_Time")],
+      main = "Pairs Plot of Numerical Variables")
+
+# Facet grid plot for numerical variables by Likelihood_of_Injury using 'ggplot2'
+library(ggplot2)
+
+# Scatter plot of Player_Age vs Player_Weight, faceted by Likelihood_of_Injury
+ggplot(InjuryData, aes(x = Player_Age, y = Player_Weight, color = Likelihood_of_Injury)) +
+  geom_point() +
+  facet_wrap(~Likelihood_of_Injury) +
+  labs(title = "Player_Age vs Player_Weight by Likelihood_of_Injury",
+       x = "Player Age", y = "Player Weight") +
+  theme_minimal()
+
+# Boxplot of Player_Age by Likelihood_of_Injury using 'ggplot2'
+ggplot(InjuryData, aes(x = Likelihood_of_Injury, y = Player_Age, fill = Likelihood_of_Injury)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Player_Age by Likelihood_of_Injury",
+       x = "Likelihood of Injury", y = "Player Age") +
+  theme_minimal()
+
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r Missing Values}
+# Check if there are any missing values in the dataset
+# This will return TRUE for any column that has missing values
+missing_values <- sapply(InjuryData, function(x) sum(is.na(x)))
+
+# Display the number of missing values per column
+print("Missing values per column:")
+print(missing_values)
+
+# Check if there are any missing values in the entire dataset
+total_missing <- sum(is.na(InjuryData))
+cat("Total missing values in the dataset:", total_missing, "\n")
+
+# Check if any column has missing values
+any_missing <- any(missing_values > 0)
+cat("Does the dataset have missing values?", ifelse(any_missing, "Yes", "No"), "\n")
+
+# Visualize missing data (optional, using the 'VIM' package)
+library(VIM)
+aggr(InjuryData, col = c("navyblue", "yellow"), numbers = TRUE, sortVars = TRUE, labels = names(InjuryData), cex.axis = 0.7, gap = 3, ylab = c("Missing data", "Pattern"))
+
+```
+
+# Training Model
+## Data Splitting
+```{r Data Splitting}
+library(caret)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# 1. Data Splitting (80% Training, 20% Testing)
+train_index <- sample(1:nrow(InjuryData), 0.8 * nrow(InjuryData))
+train_data <- InjuryData[train_index, ]
+test_data <- InjuryData[-train_index, ]
+cat("Training set size:", nrow(train_data), "\n")
+cat("Test set size:", nrow(test_data), "\n")
+
+```
+
+## Bootstrapping
+```{r Bootstrapping}
+# 2. Bootstrapping (Sampling with replacement)
+n_bootstrap <- 1000
+bootstrap_samples <- matrix(NA, nrow = n_bootstrap, ncol = nrow(InjuryData))
+for(i in 1:n_bootstrap) {
+  bootstrap_samples[i, ] <- sample(1:nrow(InjuryData), nrow(InjuryData), replace = TRUE)
+}
+head(bootstrap_samples)
+```
+
+## Cross-validation
+```{r Cross-validation}
+# 3. Cross-Validation (Caret package)
+library(caret)
+
+# a. Basic k-Fold Cross-Validation (10-fold)
+train_control <- trainControl(method = "cv", number = 10)
+model_cv <- train(Likelihood_of_Injury ~ ., data = train_data, method = "glm", family = "binomial", trControl = train_control)
+print(model_cv)
+
+# b. Repeated k-Fold Cross-Validation (10-fold, repeating 3 times)
+train_control_repeated <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+model_repeated_cv <- train(Likelihood_of_Injury ~ ., data = train_data, method = "glm", family = "binomial", trControl = train_control_repeated)
+print(model_repeated_cv)
+
+# c. Leave-One-Out Cross-Validation (LOOCV)
+train_control_loocv <- trainControl(method = "LOOCV")
+model_loocv <- train(Likelihood_of_Injury ~ ., data = train_data, method = "glm", family = "binomial", trControl = train_control_loocv)
+print(model_loocv)
+
+```
+
+## Training Different Models
+```{r Training Different Models}
+# 4. Model Training with Decision Tree (rpart)
+model_dt <- train(Likelihood_of_Injury ~ ., data = train_data, method = "rpart", trControl = train_control)
+print(model_dt)
+
+# 5. Model Training with Random Forest (rf)
+model_rf <- train(Likelihood_of_Injury ~ ., data = train_data, method = "rf", trControl = train_control)
+print(model_rf)
+```
+
+## Performance Comparison with resamples
+```{r}
+# 3. Model Performance Comparison using resamples
+models_list <- resamples(list(GLM = model_cv, DecisionTree = model_dt, RandomForest = model_rf))
+
+# Summarize the resamples for comparison
+summary(models_list)
+
+# Boxplot for visual comparison
+bwplot(models_list)
+```
+
+## Saving Model
+```{r Saving Model}
+# Save the Random Forest model to an RDS file
+saveRDS(model_rf, "./models/saved_rf_model.rds")
+
+# Load the saved Random Forest model
+loaded_rf_model <- readRDS("./models/saved_rf_model.rds")
+
+# Example new data for prediction
+new_data <- data.frame(
+  Player_Age = 24,
+  Player_Weight = 66.25,
+  Player_Height = 175.73,
+  Previous_Injuries = factor(1, levels = c(0, 1)),
+  Training_Intensity = 5,
+  Recovery_Time = 0.46,
+  Likelihood_of_Injury = factor(0, levels = c(0, 1))
+)
+
+# Use the loaded model to make predictions
+predictions_loaded_model <- predict(loaded_rf_model, newdata = new_data)
+
+# Print the predictions
+print(predictions_loaded_model)
+
+```
+
